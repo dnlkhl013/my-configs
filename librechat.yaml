@@ -1,0 +1,332 @@
+# ============================================================================
+# LibreChat Configuration — Семейный сервер
+# ============================================================================
+# Версия конфигурации (обязательное поле)
+# Должна соответствовать версии LibreChat. Актуальная: 1.3.9
+version: 1.3.9
+
+# Кэширование — ускоряет работу (списки моделей, токены и т.д.)
+cache: true
+
+# ============================================================================
+# ИНТЕРФЕЙС
+# ============================================================================
+interface:
+  # Приветственное сообщение на главной странице чата
+  customWelcome: "Hey {{user.name}}! 👋 Welcome to our family AI chat."
+
+  # --- Основные элементы UI ---
+  endpointsMenu: true        # Меню выбора провайдеров (OpenAI / Anthropic / Google)
+  modelSelect: true          # Выпадающий список выбора модели
+  parameters: true           # Настройки параметров (temperature, top_p и т.д.)
+  sidePanel: true            # Боковая панель с настройками
+  presets: true              # Пресеты — сохранённые наборы настроек
+  bookmarks: true            # Закладки для диалогов
+  multiConvo: true           # Мульти-ответы (несколько моделей одновременно)
+  temporaryChat: true        # Временные чаты (не сохраняются в истории)
+  memories: false            # Память (Memory) отключена в UI
+
+  # --- Функции в чате ---
+  runCode: false             # Кнопка «Запустить код» для блоков кода в Markdown
+  webSearch: true            # Кнопка веб-поиска в чате
+  fileSearch: true           # Поиск по загруженным файлам
+  fileCitations: true        # Цитирование файлов в ответах
+
+  # --- Промпты (системные подсказки) ---
+  prompts:
+    use: true                # Использовать промпты
+    create: true             # Создавать свои промпты
+    share: true              # Делиться промптами с семьёй
+    public: false            # Не публиковать в маркетплейс
+
+  # --- Агенты (AI-ассистенты с инструментами) — отключено ---
+  agents:
+    use: false               # Использовать агентов (отключено)
+    create: false            # Создавать своих агентов (отключено)
+    share: false             # Делиться агентами (отключено)
+    public: false            # Не публиковать в маркетплейс
+
+
+
+  # --- Маркетплейс агентов ---
+  marketplace:
+    enabled: false           # Отключён — не нужен для семейного использования
+
+  # --- Временные чаты ---
+  # Сколько часов хранить временные чаты перед удалением (мин: 1, макс: 8760)
+  temporaryChatRetention: 24 # 24 часа — достаточно для временных
+
+# ============================================================================
+# РЕГИСТРАЦИЯ
+# ============================================================================
+# Регистрация закрыта — только существующие пользователи
+# Все аккаунты уже созданы, посторонние не смогут зарегистрироваться
+registration:
+  socialLogins: []           # Социальные логины отключены
+  # allowedDomains: []       # Можно раскомментировать и указать домены
+
+# ============================================================================
+# БАЛАНС / ЛИМИТЫ ТОКЕНОВ / ТРАНЗАКЦИИ
+# ============================================================================
+# Баланс и транзакции отключены — семья пользуется без ограничений
+balance:
+  enabled: false
+
+transactions:
+  enabled: false
+
+# ============================================================================
+# ХРАНЕНИЕ ФАЙЛОВ
+# ============================================================================
+# Для Railway лучше всего local (файлы хранятся на сервере)
+# Если нужен S3/Firebase — раскомментируйте нужный вариант
+fileStrategy: "local"
+
+# ============================================================================
+# НАСТРОЙКИ ФАЙЛОВ
+# ============================================================================
+fileConfig:
+  # Глобальный лимит размера файлов на сервере (МБ)
+  serverFileSizeLimit: 100
+  # Лимит аватарки (МБ)
+  avatarSizeLimit: 2
+  # Максимум токенов на файл для RAG
+  fileTokenLimit: 50000
+
+  # Генерация изображений — процент от размера или пиксели
+  imageGeneration:
+    percentage: 100
+    px: 1024
+
+  # Сжатие изображений на клиенте перед загрузкой
+  clientImageResize:
+    enabled: true
+    maxWidth: 1920
+    maxHeight: 1920
+    quality: 0.9             # Качество JPEG (0.0–1.0)
+
+  # Настройки по эндпоинтам
+  endpoints:
+    # Общие настройки для всех эндпоинтов
+    default:
+      fileLimit: 10          # Макс. файлов за один запрос
+      fileSizeLimit: 25      # Макс. размер одного файла (МБ)
+      totalSizeLimit: 100    # Общий лимит на все файлы (МБ)
+      supportedMimeTypes:
+        - "image/.*"
+        - "application/pdf"
+        - "text/.*"
+        - "application/vnd\\.openxmlformats-officedocument\\..*"
+        - "application/vnd\\.ms-.*"
+        - "application/json"
+        - "application/xml"
+
+  # OCR — распознавание текста из изображений и документов
+  ocr:
+    # Стратегия: document_parser — локальная, без внешних API
+    strategy: "document_parser"
+
+  # Текстовые файлы — прямое извлечение текста
+  text:
+    supportedMimeTypes:
+      - "^text/(plain|markdown|csv|json|xml|html|css|javascript|typescript|x-python|x-java|x-csharp|x-php|x-ruby|x-go|x-rust|x-kotlin|x-swift|x-scala|x-perl|x-lua|x-shell|x-sql|x-yaml|x-toml)$"
+
+  # STT — аудиофайлы для распознавания речи
+  stt:
+    supportedMimeTypes:
+      - "^audio/(mp3|mpeg|mpeg3|wav|wave|x-wav|ogg|vorbis|mp4|x-m4a|flac|x-flac|webm)$"
+
+# ============================================================================
+# РЕЧЬ (TTS / STT)
+# ============================================================================
+# Озвучивание ответов и распознавание голоса через OpenAI
+# Используется существующий OPENAI_API_KEY — отдельный ключ не нужен
+speech:
+  tts:
+    openai:
+      apiKey: "${OPENAI_API_KEY}"  # Тот же ключ, что и для чата
+      model: "tts-1"               # tts-1 — быстро и дёшево; tts-1-hd — выше качество
+      voices:
+        - "alloy"                  # Нейтральный
+        - "echo"                   # Мужской
+        - "fable"                  # Британский
+        - "onyx"                   # Глубокий мужской
+        - "nova"                   # Женский
+        - "shimmer"                # Мягкий женский
+  stt:
+    openai:
+      apiKey: "${OPENAI_API_KEY}"  # Тот же ключ
+      model: "whisper-1"           # Поддерживает русский и другие языки
+  speechTab:
+    conversationMode: true         # Режим разговора — нажал/говоришь/отпустил
+    advancedMode: false            # Расширенные настройки скрыты (можно включить)
+    speechToText: true             # Кнопка микрофона для ввода голосом
+    textToSpeech: true             # Озвучивание ответов AI
+
+# ============================================================================
+# ПАМЯТЬ (Memory)
+# ============================================================================
+# Функция Memory полностью отключена
+memory:
+  disabled: true
+
+# ============================================================================
+# RATE LIMITS — Ограничения частоты запросов
+# ============================================================================
+# Мягкие лимиты для семейного использования (защита от случайного спама)
+rateLimits:
+  fileUploads:
+    ipMax: 100
+    ipWindowInMinutes: 60
+    userMax: 50
+    userWindowInMinutes: 60
+  conversationImport:
+    ipMax: 100
+    ipWindowInMinutes: 60
+    userMax: 50
+    userWindowInMinutes: 60
+
+# ============================================================================
+# ЭНДПОИНТЫ — AI ПРОВАЙДЕРЫ
+# ============================================================================
+endpoints:
+
+  # --------------------------------------------------------------------------
+  # AGENTS — Конфигурация агентов (отключено)
+  # --------------------------------------------------------------------------
+  agents:
+    disableBuilder: true     # Конструктор агентов отключён
+
+  # --------------------------------------------------------------------------
+  # Ограничение списка моделей только нужными (plain array — требование схемы)
+  # --------------------------------------------------------------------------
+  openAI:
+    models: ["gpt-5.4", "gpt-5.4-mini"]
+
+  anthropic:
+    models: ["claude-sonnet-4-6", "claude-opus-4-7"]
+
+  google:
+    models: ["gemini-3.1-pro-preview", "gemini-3-flash-preview"]
+
+  # --------------------------------------------------------------------------
+  # ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ ЭНДПОИНТОВ
+  # --------------------------------------------------------------------------
+  all:
+    titleConvo: true                             # Автогенерация заголовков для всех провайдеров
+    titleModel: "gemini-3.1-flash-lite-preview"  # Самая дешёвая и быстрая модель для заголовков
+    titleEndpoint: "google"  # Always use Google API for title generation
+
+# ============================================================================
+# MODEL SPECS — Спецификации моделей
+# ============================================================================
+# enforce: true — показываем ТОЛЬКО модели из списка ниже, без сырых имён из API
+# prioritize: true — spec-ы идут первыми в списке
+# ВАЖНО: webSearch на уровне spec НЕ используем — включаем только web_search
+# в preset (нативный поиск провайдера). Их нельзя смешивать:
+# - webSearch: true = LibreChat-поиск (Serper+Firecrawl+Jina, внешние инструменты)
+# - web_search: true = нативный поиск провайдера (встроенный инструмент)
+# Смешивание вызывает "Tool names must be unique" у Anthropic
+# и "built-in tools not supported with external tools" у Google
+modelSpecs:
+  enforce: true
+  prioritize: true
+  list:
+
+    # --------------------------------------------------------------------------
+    # ANTHROPIC — Claude models
+    # --------------------------------------------------------------------------
+
+    # Claude Sonnet 4.6 — быстрый и умный, для повседневного использования
+    - name: "claude-sonnet-4-6"
+      label: "Claude Sonnet 4.6"
+      group: "anthropic"
+      # webSearch: false — НЕ включаем LibreChat-поиск, используем нативный ниже
+      preset:
+        endpoint: "anthropic"
+        model: "claude-sonnet-4-6"
+        promptCache: true
+        web_search: true     # Нативный поиск Anthropic (web_search_20250305)
+
+    # Claude Opus 4.7 — самая мощная модель Anthropic для сложных задач
+    - name: "claude-opus-4-7"
+      label: "Claude Opus 4.7"
+      group: "anthropic"
+      preset:
+        endpoint: "anthropic"
+        model: "claude-opus-4-7"
+        promptCache: true
+        web_search: true     # Нативный поиск Anthropic (web_search_20250305)
+
+    # --------------------------------------------------------------------------
+    # GOOGLE — Gemini models
+    # --------------------------------------------------------------------------
+
+    # Gemini 3.1 Pro Preview — продвинутая модель Google с большим контекстом
+    - name: "gemini-3.1-pro-preview"
+      label: "Gemini 3.1 Pro"
+      group: "google"
+      # webSearch: false — НЕ включаем LibreChat-поиск, используем нативный ниже
+      preset:
+        endpoint: "google"
+        model: "gemini-3.1-pro-preview"
+        web_search: true     # Google Grounding with Google Search (нативный)
+
+    # Gemini 3 Flash Preview — быстрая и экономичная модель Google
+    - name: "gemini-3-flash-preview"
+      label: "Gemini 3 Flash"
+      group: "google"
+      preset:
+        endpoint: "google"
+        model: "gemini-3-flash-preview"
+        web_search: true     # Google Grounding with Google Search (нативный)
+
+    # --------------------------------------------------------------------------
+    # OPENAI — GPT models
+    # --------------------------------------------------------------------------
+
+    # GPT-5.4 — флагманская модель OpenAI
+    - name: "gpt-5.4"
+      label: "GPT-5.4"
+      group: "openAI"
+      preset:
+        endpoint: "openAI"
+        model: "gpt-5.4"
+        reasoning_effort: "high"
+        web_search: true     # Нативный поиск OpenAI
+
+    # GPT-5.4 Mini — быстрая и дешёвая версия GPT-5.4
+    - name: "gpt-5.4-mini"
+      label: "GPT-5.4 Mini"
+      group: "openAI"
+      preset:
+        endpoint: "openAI"
+        model: "gpt-5.4-mini"
+        reasoning_effort: "high"
+        web_search: true     # Нативный поиск OpenAI
+
+# ============================================================================
+# КОНЕЦ КОНФИГУРАЦИИ
+# ============================================================================
+# Required .env variables:
+#
+# --- Required ---
+# OPENAI_API_KEY=sk-...             # OpenAI key: platform.openai.com/api-keys
+# ANTHROPIC_API_KEY=sk-ant-...      # Anthropic key: console.anthropic.com
+# GOOGLE_KEY=AI...                  # Google AI key: aistudio.google.com/apikey
+#
+# --- Disable registration ---
+# ALLOW_REGISTRATION=false          # Closes registration for new users
+# ALLOW_SOCIAL_LOGIN=false          # Disables social logins
+#
+# --- UI Language (set to English) ---
+# LOCALE=en-US                      # Force English UI language
+#
+# --- Recommended ---
+# ALLOW_PASSWORD_RESET=true         # Allow password reset
+# ALLOW_ACCOUNT_DELETION=true       # Allow account deletion
+# SESSION_EXPIRY=604800000          # Session duration: 7 days (ms)
+# REFRESH_TOKEN_EXPIRY=2592000000   # Refresh token: 30 days (ms)
+#
+# --- Optional (for extra features) ---
+# SERPER_API_KEY=...                # For web search (serper.dev)
